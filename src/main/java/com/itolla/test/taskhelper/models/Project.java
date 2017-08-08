@@ -1,35 +1,44 @@
 package com.itolla.test.taskhelper.models;
 
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(schema = "public")
 public class Project {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long projectId;
     private String title;
-    private Long owner_id;
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "userId")
+    private User owner;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "userId")
     private Set<User> users;
 
+    @OneToMany(mappedBy = "project")
+    private Set<Issue> issues;
+
+    @OneToMany(mappedBy = "project")
+    private Set<Label> labels;
+
     public Project(){}
-    public Project(Long id, String title, Long owner_id){
-        this.id = id;
+    public Project(String title, User owner){
         this.title = title;
-        this.owner_id = owner_id;
+        this.owner = owner;
     }
 
     public void setId(Long id){
-        this.id = id;
+        this.projectId = id;
     }
     public Long getId(){
-        return this.id;
+        return this.projectId;
     }
 
     public void setTitle(String title){
@@ -39,18 +48,110 @@ public class Project {
         return this.title;
     }
 
-    public void setOwner_id(Long owner_id){
-        this.owner_id = owner_id;
-    }
-    public Long getOwner_id() {
-        return this.owner_id;
+    public void setOwner(User owner){
+        // чтобы не зациклиться
+        if (this.owner == null? owner == null : this.owner.equals(owner))
+            return;
+        User oldOwner = this.owner;
+        this.owner = owner;
+
+        // сохранение целостности
+        if(oldOwner != null)
+            oldOwner.removeOwnProject(this);
+        if (owner != null)
+            owner.addOwnProject(this);
     }
 
-    @ManyToMany(mappedBy = "projects")
+    public User getOwner() {
+        return this.owner;
+    }
+
     public Set<User> getUsers(){
         return users;
     }
-    public void setUsers(Set<User> users){
-        this.users = users;
+
+    public void addUser(User user){
+
+        if (users == null)
+            users = new HashSet<>();
+
+        // чтобы не зациклиться
+        if ((users.contains(user)) || (user == null))
+            return;
+
+        users.add(user);
+
+        // Сохранение целостности
+        user.addProject(this);
+    }
+    public void removeUser(User user){
+        // чтобы не зациклиться и не упасть в NullPointer
+        if ((users == null) || (!users.contains(user)) || (user == null))
+            return;
+
+        users.remove(user);
+
+        // сохранение целостности
+        user.removeProject(this);
+    }
+
+    public Set<Issue> getIssues(){
+        return issues;
+    }
+
+    public void addIssue(Issue issue){
+
+        if (issues == null)
+            issues = new HashSet<>();
+
+        // чтобы не зациклиться
+        if((issues.contains(issue)) || (issue == null))
+            return;
+
+        issues.add(issue);
+
+        // сохранение целостности
+        issue.setProject(this);
+    }
+
+    public void removeIssue(Issue issue){
+        // чтобы не зациклиться и не упасть в NullPointer
+        if((issues == null) || (!issues.contains(issue)) || (issue == null))
+            return;
+
+        issues.remove(issue);
+
+        // Сохранение целостности
+        issue.setProject(null);
+    }
+
+    public Set<Label> getLabels(){
+        return this.labels;
+    }
+
+    public void addLabel(Label label){
+
+        if (labels == null)
+            labels = new HashSet<>();
+
+        // чтобы не зациклиться
+        if ((labels.contains(label)) || (label == null))
+            return;
+
+        labels.add(label);
+
+        // сохранение целостности
+        label.setProject(this);
+    }
+
+    public void removeLabel(Label label){
+        // чтобы не зациклиться и не упасть в NullPointer
+        if ((labels == null) || (!labels.contains(label)) || (label == null))
+            return;
+
+        labels.remove(label);
+
+        // сохранение целостности
+        label.setProject(null);
     }
 }

@@ -1,35 +1,41 @@
 package com.itolla.test.taskhelper.models;
 
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(schema = "public")
 public class User {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long userId;
+
     private String username;
     private String password;
 
+    @OneToMany(mappedBy = "user")
+    private Set<Issue> issues;
+
+    @OneToMany(mappedBy = "owner")
+    private Set<Project> ownProjects;
+
+    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "users")
     private Set<Project> projects;
 
     public User(){}
-    public User(Long id, String username, String password){
-        this.id = id;
+    public User(String username, String password){
         this.password = password;
         this.username = username;
     }
 
     public void setId(Long id){
-        this.id = id;
+        this.userId = id;
     }
     public Long getId(){
-        return this.id;
+        return this.userId;
     }
 
     public void setUsername(String username){
@@ -46,11 +52,93 @@ public class User {
         return this.password;
     }
 
-    @ManyToMany(mappedBy = "users")
     public Set<Project> getProjects(){
         return projects;
     }
-    public void setProjects(Set<Project> projects){
-        this.projects = projects;
+
+    public void addProject(Project project){
+
+        if (projects == null)
+            projects = new HashSet<>();
+
+        // чтобы не зациклиться
+        if ((projects.contains(project)) || (project == null))
+            return;
+
+        projects.add(project);
+
+        // сохранение целостности
+        project.addUser(this);
+    }
+
+    public void removeProject(Project project){
+        // чтобы не зациклиться и не упасть в NullPointer
+        if ((projects == null) || (!projects.contains(project)) || (project == null))
+            return;
+
+        projects.remove(project);
+
+        // сохранение целостности
+        project.removeUser(this);
+    }
+
+    public void addIssue(Issue issue){
+
+        if (issues == null)
+            issues = new HashSet<>();
+
+        // чтобы не зациклиться
+        if ((issues.contains(issue)) || (issue == null))
+            return;
+
+        issues.add(issue);
+
+        // сохранение целостности
+        issue.setUser(this);
+    }
+
+    public void removeIssue(Issue issue){
+        // чтобы не зациклиться и не упасть в NulPointer
+        if ((issues == null) || (!issues.contains(issue)) || (issue == null))
+            return;
+
+        issues.remove(issue);
+
+        // сохранение целостности
+        issue.setUser(null);
+    }
+
+    public Set<Issue> getIssues() {
+        return issues;
+    }
+
+    public void addOwnProject(Project ownProject) {
+
+        if (ownProjects == null)
+            ownProjects = new HashSet<>();
+
+        // чтобы не зациклиться
+        if ((ownProjects.contains(ownProject)) || (ownProject == null))
+            return;
+
+        ownProjects.add(ownProject);
+
+        // Сохранение целостности
+        ownProject.setOwner(this);
+    }
+
+    public void removeOwnProject(Project ownProject){
+        // чтобы не зациклиться и не упасть в NullPointer
+        if ((ownProjects == null) || (!ownProjects.contains(ownProject)) || (ownProject == null))
+            return;
+
+        ownProjects.remove(ownProject);
+
+        // Сохранение целостности
+        ownProject.setOwner(null);
+    }
+
+    public Set<Project> getOwnProjects() {
+        return ownProjects;
     }
 }
