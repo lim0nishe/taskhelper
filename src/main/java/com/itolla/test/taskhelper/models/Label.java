@@ -16,16 +16,15 @@ public class Label {
     private String title;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "project_projectId")
+    @JoinColumn(name = "projectId")
     private Project project;
 
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "labels")
     private Set<Issue> issues;
 
     public Label(){}
-    public Label(String title, Project project){
+    public Label(String title){
         this.title = title;
-        this.project = project;
     }
 
     public void setId(Long id){

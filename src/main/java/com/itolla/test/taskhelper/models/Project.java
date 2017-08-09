@@ -29,9 +29,8 @@ public class Project {
     private Set<Label> labels;
 
     public Project(){}
-    public Project(String title, User owner){
+    public Project(String title){
         this.title = title;
-        this.owner = owner;
     }
 
     public void setId(Long id){

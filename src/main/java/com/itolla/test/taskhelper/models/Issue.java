@@ -17,23 +17,21 @@ public class Issue {
     private String description;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_userId")
+    @JoinColumn(name = "userId")
     private User user;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "project_projectId")
+    @JoinColumn(name = "projectId")
     private Project project;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "label_labelId")
+    @JoinColumn(name = "labelId")
     private Set<Label> labels;
 
     public Issue(){}
-    public Issue(String title, String description, User user, Project project){
+    public Issue(String title, String description){
         this.title = title;
         this.description = description;
-        this.user = user;
-        this.project = project;
     }
 
     public void setId(Long id) {
