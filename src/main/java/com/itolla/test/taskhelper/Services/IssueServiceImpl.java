@@ -1,6 +1,7 @@
 package com.itolla.test.taskhelper.Services;
 
 import com.itolla.test.taskhelper.Repositories.IssueRepository;
+import com.itolla.test.taskhelper.Repositories.IssueRepositoryCustom;
 import com.itolla.test.taskhelper.models.Issue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,4 +23,15 @@ public class IssueServiceImpl implements IssueService {
     public List<Issue> getAllIssues() {
         return issueRepository.findAll();
     }
+
+    @Override
+    public Issue save(Issue issue) {
+        return ((IssueRepositoryCustom)issueRepository).save(issue);
+    }
+
+    @Override
+    public Issue update(Issue issue) {
+        return ((IssueRepositoryCustom)issueRepository).save(issue);
+    }
+
 }

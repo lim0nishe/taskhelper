@@ -1,6 +1,7 @@
 package com.itolla.test.taskhelper.Services;
 
 import com.itolla.test.taskhelper.Repositories.UserRepository;
+import com.itolla.test.taskhelper.Repositories.UserRepositoryCustom;
 import com.itolla.test.taskhelper.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,5 +22,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    @Override
+    public User save(User user) {
+        return ((UserRepositoryCustom)userRepository).save(user);
+    }
+
+    @Override
+    public User update(User user) {
+        return ((UserRepositoryCustom)userRepository).save(user);
     }
 }

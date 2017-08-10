@@ -86,5 +86,8 @@ public class Label {
 
         // сохранение целостности
         issue.removeLabel(this);
+
     }
+
 }
+

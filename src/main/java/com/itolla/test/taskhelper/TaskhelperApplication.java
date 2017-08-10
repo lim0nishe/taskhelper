@@ -4,6 +4,10 @@ import com.itolla.test.taskhelper.Repositories.IssueRepository;
 import com.itolla.test.taskhelper.Repositories.LabelRepository;
 import com.itolla.test.taskhelper.Repositories.ProjectRepository;
 import com.itolla.test.taskhelper.Repositories.UserRepository;
+import com.itolla.test.taskhelper.Services.IssueService;
+import com.itolla.test.taskhelper.Services.LabelService;
+import com.itolla.test.taskhelper.Services.ProjectService;
+import com.itolla.test.taskhelper.Services.UserService;
 import com.itolla.test.taskhelper.models.Issue;
 import com.itolla.test.taskhelper.models.Label;
 import com.itolla.test.taskhelper.models.Project;
@@ -30,8 +34,8 @@ public class TaskhelperApplication {
 	}
 
 	@Bean
-	public CommandLineRunner setup(IssueRepository issueRepository, LabelRepository labelRepository,
-								   ProjectRepository projectRepository, UserRepository userRepository){
+	public CommandLineRunner setup(IssueService issueService, LabelService labelService,
+								   ProjectService projectService, UserService userService){
 		return (args) -> {
 			User user1 = new User("user1", "secret");
 			User user2 = new User("user2", "secret");
@@ -75,31 +79,31 @@ public class TaskhelperApplication {
 			issue5.setUser(user2);
 			issue5.setProject(project2);
 
+
 			label1.addIssue(issue1);
 			label1.addIssue(issue2);
 			label2.addIssue(issue4);
 			label3.addIssue(issue3);
 			label4.addIssue(issue5);
 
-			labelRepository.save(label1);
-			labelRepository.save(label2); // detached entity passed to persist error here
-			labelRepository.save(label3);
-			labelRepository.save(label4);
+			labelService.save(label1);
+			labelService.save(label2); // detached entity passed to persist error here
+			labelService.save(label3);
+			labelService.save(label4);
 
-			issueRepository.save(issue1);
-			issueRepository.save(issue2);
-			issueRepository.save(issue3);
-			issueRepository.save(issue4);
-			issueRepository.save(issue5);
+			issueService.save(issue1);
+			issueService.save(issue2);
+			issueService.save(issue3);
+			issueService.save(issue4);
+			issueService.save(issue5);
 
-			projectRepository.save(project1);
-			projectRepository.save(project2);
+			projectService.save(project1);
+			projectService.save(project2);
 
-			userRepository.save(user1);
-			userRepository.save(user2);
-			userRepository.save(user3);
-			userRepository.save(user4);
-
+			userService.save(user1);
+			userService.save(user2);
+			userService.save(user3);
+			userService.save(user4);
 		};
 	}
 }
