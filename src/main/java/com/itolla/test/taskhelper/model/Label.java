@@ -1,5 +1,7 @@
-package com.itolla.test.taskhelper.models;
+package com.itolla.test.taskhelper.model;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -10,15 +12,17 @@ import java.util.Set;
 public class Label {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long labelId;
 
     private String title;
 
+    @JsonIgnoreProperties({"owner", "users", "issues", "labels"})
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "projectId")
     private Project project;
 
+    @JsonIgnoreProperties({"description", "user", "project", "labels"})
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "labels")
     private Set<Issue> issues;
 

@@ -1,7 +1,7 @@
-package com.itolla.test.taskhelper.controllers;
+package com.itolla.test.taskhelper.controller;
 
-import com.itolla.test.taskhelper.Services.LabelService;
-import com.itolla.test.taskhelper.models.Label;
+import com.itolla.test.taskhelper.service.UserService;
+import com.itolla.test.taskhelper.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,19 +11,19 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/labels")
-public class LabelController {
+@RequestMapping("/users")
+public class UserController {
 
     @Autowired
-    private LabelService labelService;
+    private UserService userService;
 
     @RequestMapping(method = RequestMethod.GET)
-    public List<Label> getLabels(){
-        return labelService.getAllLabels();
+    public List<User> getUsers(){
+        return userService.getAllUsers();
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public Label getLabel(@PathVariable("id") Long id){
-        return labelService.getLabelById(id);
+    public User getUser(@PathVariable("id") Long id){
+        return userService.getUserById(id);
     }
 }
