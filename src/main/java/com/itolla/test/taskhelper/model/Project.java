@@ -100,6 +100,15 @@ public class Project {
         user.removeProject(this);
     }
 
+    public void removeAllUsers(){
+        if (users == null)
+            return;
+        for (User user : users){
+            users.remove(user);
+            user.removeProject(this);
+        }
+    }
+
     public Set<Issue> getIssues(){
         return issues;
     }
@@ -130,6 +139,14 @@ public class Project {
         issue.setProject(null);
     }
 
+    public void removeAllIssues(){
+        if (issues == null)
+            return;
+        for (Issue issue : issues){
+            issues.remove(issue);
+            issue.setProject(null);
+        }
+    }
     public Set<Label> getLabels(){
         return this.labels;
     }
@@ -158,5 +175,14 @@ public class Project {
 
         // сохранение целостности
         label.setProject(null);
+    }
+
+    public void removeAllLabels(){
+        if (labels == null)
+            return;
+        for (Label label : labels){
+            labels.remove(label);
+            label.setProject(null);
+        }
     }
 }
