@@ -1,8 +1,7 @@
-package com.itolla.test.taskhelper.Services;
+package com.itolla.test.taskhelper.service;
 
-import com.itolla.test.taskhelper.Repositories.IssueRepository;
-import com.itolla.test.taskhelper.Repositories.IssueRepositoryCustom;
-import com.itolla.test.taskhelper.models.Issue;
+import com.itolla.test.taskhelper.repository.IssueRepository;
+import com.itolla.test.taskhelper.model.Issue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +12,7 @@ public class IssueServiceImpl implements IssueService {
 
     @Autowired
     IssueRepository issueRepository;
+
 
     @Override
     public Issue getIssueById(Long id) {
@@ -26,12 +26,12 @@ public class IssueServiceImpl implements IssueService {
 
     @Override
     public Issue save(Issue issue) {
-        return ((IssueRepositoryCustom)issueRepository).save(issue);
+        return issueRepository.save(issue);
     }
 
     @Override
     public Issue update(Issue issue) {
-        return ((IssueRepositoryCustom)issueRepository).save(issue);
+        return issueRepository.save(issue);
     }
 
 }

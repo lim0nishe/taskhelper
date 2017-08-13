@@ -1,5 +1,7 @@
-package com.itolla.test.taskhelper.models;
+package com.itolla.test.taskhelper.model;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -10,21 +12,25 @@ import java.util.Set;
 public class Project {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long projectId;
     private String title;
 
+    @JsonIgnoreProperties({"password", "issues", "ownProjects", "projects"})
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "userId")
     private User owner;
 
+    @JsonIgnoreProperties({"password", "issues", "ownProjects", "projects"})
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "userId")
     private Set<User> users;
 
+    @JsonIgnoreProperties({"description", "user", "project", "labels"})
     @OneToMany(mappedBy = "project")
     private Set<Issue> issues;
 
+    @JsonIgnoreProperties({"project", "issues"})
     @OneToMany(mappedBy = "project")
     private Set<Label> labels;
 
@@ -94,6 +100,15 @@ public class Project {
         user.removeProject(this);
     }
 
+    public void removeAllUsers(){
+        if (users == null)
+            return;
+        for (User user : users){
+            users.remove(user);
+            user.removeProject(this);
+        }
+    }
+
     public Set<Issue> getIssues(){
         return issues;
     }
@@ -124,6 +139,14 @@ public class Project {
         issue.setProject(null);
     }
 
+    public void removeAllIssues(){
+        if (issues == null)
+            return;
+        for (Issue issue : issues){
+            issues.remove(issue);
+            issue.setProject(null);
+        }
+    }
     public Set<Label> getLabels(){
         return this.labels;
     }
@@ -152,5 +175,14 @@ public class Project {
 
         // сохранение целостности
         label.setProject(null);
+    }
+
+    public void removeAllLabels(){
+        if (labels == null)
+            return;
+        for (Label label : labels){
+            labels.remove(label);
+            label.setProject(null);
+        }
     }
 }

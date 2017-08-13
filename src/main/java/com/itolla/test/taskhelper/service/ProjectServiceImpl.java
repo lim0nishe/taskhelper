@@ -1,8 +1,7 @@
-package com.itolla.test.taskhelper.Services;
+package com.itolla.test.taskhelper.service;
 
-import com.itolla.test.taskhelper.Repositories.ProjectRepository;
-import com.itolla.test.taskhelper.Repositories.ProjectRepositoryCustom;
-import com.itolla.test.taskhelper.models.Project;
+import com.itolla.test.taskhelper.repository.ProjectRepository;
+import com.itolla.test.taskhelper.model.Project;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,11 +25,11 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Project save(Project project) {
-        return ((ProjectRepositoryCustom)projectRepository).save(project);
+        return projectRepository.save(project);
     }
 
     @Override
     public Project update(Project project) {
-        return ((ProjectRepositoryCustom)projectRepository).save(project);
+        return projectRepository.save(project);
     }
 }

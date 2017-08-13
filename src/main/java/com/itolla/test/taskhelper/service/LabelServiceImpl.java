@@ -1,8 +1,7 @@
-package com.itolla.test.taskhelper.Services;
+package com.itolla.test.taskhelper.service;
 
-import com.itolla.test.taskhelper.Repositories.LabelRepository;
-import com.itolla.test.taskhelper.Repositories.LabelRepositoryCustom;
-import com.itolla.test.taskhelper.models.Label;
+import com.itolla.test.taskhelper.repository.LabelRepository;
+import com.itolla.test.taskhelper.model.Label;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,11 +25,11 @@ public class LabelServiceImpl implements LabelService {
 
     @Override
     public Label save(Label label) {
-        return ((LabelRepositoryCustom)labelRepository).save(label);
+        return labelRepository.save(label);
     }
 
     @Override
     public Label update(Label label) {
-        return ((LabelRepositoryCustom)labelRepository).save(label);
+        return labelRepository.save(label);
     }
 }

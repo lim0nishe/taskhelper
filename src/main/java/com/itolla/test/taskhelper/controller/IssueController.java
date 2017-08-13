@@ -1,7 +1,7 @@
-package com.itolla.test.taskhelper.controllers;
+package com.itolla.test.taskhelper.controller;
 
-import com.itolla.test.taskhelper.Services.IssueService;
-import com.itolla.test.taskhelper.models.Issue;
+import com.itolla.test.taskhelper.service.IssueService;
+import com.itolla.test.taskhelper.model.Issue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;

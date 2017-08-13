@@ -1,6 +1,6 @@
-package com.itolla.test.taskhelper.Services;
+package com.itolla.test.taskhelper.service;
 
-import com.itolla.test.taskhelper.models.User;
+import com.itolla.test.taskhelper.model.User;
 
 import java.util.List;
 
