@@ -6,9 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itolla.test.taskhelper.repository.IssueRepository;
 import com.itolla.test.taskhelper.repository.LabelRepository;
 import com.itolla.test.taskhelper.model.Label;
-import com.itolla.test.taskhelper.util.JsonRequest;
 import com.itolla.test.taskhelper.util.LabelNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -36,8 +37,8 @@ public class LabelController {
     }
 
     @RequestMapping(value = "/{projectId}/{labelId}", method = RequestMethod.PUT)
-    public JsonRequest updateLabel(@PathVariable("labelId") Long labelId, @PathVariable("projectId") Long projectId,
-                                   @RequestBody String jsonString){
+    public ResponseEntity<String> updateLabel(@PathVariable("labelId") Long labelId, @PathVariable("projectId") Long projectId,
+                                      @RequestBody String jsonString){
         Label label = labelRepository.findOne(labelId);
         if (label == null) throw new LabelNotFoundException();
         try {
@@ -61,22 +62,22 @@ public class LabelController {
             }
 
             labelRepository.save(label);
-            return new JsonRequest(202, "label successfully updated");
+            return ResponseEntity.ok("Label successfully updated");
         }
         catch (IOException e){
             e.printStackTrace();
-            return new JsonRequest(400, "something wrong with json map");
+            return new ResponseEntity<>("Something wrong with json map", HttpStatus.BAD_REQUEST);
         }
     }
 
     @RequestMapping(value = "/{projectId}/{labelId}", method = RequestMethod.DELETE)
-    public JsonRequest deleteLabel(@PathVariable("projectId") Long projectId, @PathVariable("labelId") Long labelId){
+    public ResponseEntity<String> deleteLabel(@PathVariable("projectId") Long projectId, @PathVariable("labelId") Long labelId){
         Label label = labelRepository.findOne(labelId);
         if (label == null) throw new LabelNotFoundException();
 
         label.setProject(null);
         label.removeAllIssues();
         labelRepository.delete(label);
-        return new JsonRequest(200, "Label successfully deleted");
+        return ResponseEntity.ok("Label successfully deleted");
     }
 }

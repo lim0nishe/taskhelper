@@ -11,12 +11,13 @@ import com.itolla.test.taskhelper.repository.LabelRepository;
 import com.itolla.test.taskhelper.repository.ProjectRepository;
 import com.itolla.test.taskhelper.repository.UserRepository;
 import com.itolla.test.taskhelper.model.Project;
-import com.itolla.test.taskhelper.util.JsonRequest;
 import com.itolla.test.taskhelper.util.ProjectNotFoundException;
 import com.itolla.test.taskhelper.util.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -45,7 +46,7 @@ public class ProjectController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    public JsonRequest createProject(@RequestBody String jsonString){
+    public ResponseEntity<String> createProject(@RequestBody String jsonString){
         try{
             // deserialize json into map
             ObjectMapper objectMapper = new ObjectMapper();
@@ -70,16 +71,12 @@ public class ProjectController {
             }
 
             projectRepository.save(project);
-            return new JsonRequest(201, "project successfully created");
+            return ResponseEntity.ok("Project successfully created");
 
-        }
-        catch (ClassCastException e1){
-            e1.printStackTrace();
-            return new JsonRequest(500, "ClassCastException");
         }
         catch (IOException e2){
             e2.printStackTrace();
-            return new JsonRequest(400, "something wrong with json map");
+            return new ResponseEntity<>("Something wrong with json map", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -89,7 +86,7 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public JsonRequest updateProject(@PathVariable("id") Long id, @RequestBody String jsonString){
+    public ResponseEntity<String> updateProject(@PathVariable("id") Long id, @RequestBody String jsonString){
         Project project = projectRepository.findOne(id);
         if (project == null) throw new ProjectNotFoundException();
         try {
@@ -112,13 +109,13 @@ public class ProjectController {
                 }
             }
             projectRepository.save(project);
-            return new JsonRequest(202, "user successfully updated");
+            return ResponseEntity.ok("User successfully udated");
 
 
         }
         catch (IOException e1){
             e1.printStackTrace();
-            return new JsonRequest(400, "something wrong with json map");
+            return new ResponseEntity<>("Something wrong with json map", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -133,7 +130,7 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/{id}/labels", method = RequestMethod.POST)
-    public JsonRequest createLabelForProject(@PathVariable("id") Long projectId, @RequestBody String jsonString){
+    public ResponseEntity<String> createLabelForProject(@PathVariable("id") Long projectId, @RequestBody String jsonString){
         Project project = projectRepository.findOne(projectId);
         if (project == null) throw new ProjectNotFoundException();
 
@@ -160,11 +157,11 @@ public class ProjectController {
             label.setProject(project);
 
             labelRepository.save(label);
-            return new JsonRequest(201, "label successfully created");
+            return ResponseEntity.ok("Label successfully created");
         }
         catch (IOException e1){
             e1.printStackTrace();
-            return new JsonRequest(400, "something wrong with json map");
+            return new ResponseEntity<>("Something wrong with json map", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -179,7 +176,7 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/{id}/issues", method = RequestMethod.POST)
-    public JsonRequest createIssueForProject(@PathVariable("id") Long projectId, @RequestBody String jsonString){
+    public ResponseEntity<String> createIssueForProject(@PathVariable("id") Long projectId, @RequestBody String jsonString){
         Project project = projectRepository.findOne(projectId);
         if (project == null) throw new ProjectNotFoundException();
 
@@ -214,11 +211,11 @@ public class ProjectController {
 
             issue.setProject(project);
             issueRepository.save(issue);
-            return new JsonRequest(201, "Issue successfully created");
+            return ResponseEntity.ok("Issue successfully created");
         }
         catch (IOException e){
             e.printStackTrace();
-            return new JsonRequest(400, "something wrong with json map");
+            return new ResponseEntity<>("Something wrong with json map", HttpStatus.BAD_REQUEST);
         }
     }
 }

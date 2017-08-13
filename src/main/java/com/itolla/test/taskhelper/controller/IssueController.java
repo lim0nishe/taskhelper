@@ -9,9 +9,10 @@ import com.itolla.test.taskhelper.repository.LabelRepository;
 import com.itolla.test.taskhelper.repository.UserRepository;
 import com.itolla.test.taskhelper.model.Issue;
 import com.itolla.test.taskhelper.util.IssueNotFoundException;
-import com.itolla.test.taskhelper.util.JsonRequest;
 import com.itolla.test.taskhelper.util.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -42,8 +43,8 @@ public class IssueController {
     }
 
     @RequestMapping(value = "/{projectId}/{issueId}", method = RequestMethod.PUT)
-    public JsonRequest updateIssue(@PathVariable("projectId") Long projectId, @PathVariable("issueId") Long issueId,
-                                   @RequestBody String jsonString){
+    public ResponseEntity<String> updateIssue(@PathVariable("projectId") Long projectId, @PathVariable("issueId") Long issueId,
+                                      @RequestBody String jsonString){
         Issue issue = issueRepository.findOne(issueId);
         if (issue == null) throw new IssueNotFoundException();
 
@@ -77,16 +78,16 @@ public class IssueController {
             }
 
             issueRepository.save(issue);
-            return new JsonRequest(202, "issue successfully updated");
+            return ResponseEntity.ok("Issue successfully updated");
         }
         catch (IOException e){
             e.printStackTrace();
-            return new JsonRequest(400, "something wrong with json map");
+            return new ResponseEntity<>("Something wrong with json map", HttpStatus.BAD_REQUEST);
         }
     }
 
     @RequestMapping(value = "/{projectId}/{issueId}", method = RequestMethod.DELETE)
-    public JsonRequest deleteIssue(@PathVariable("projectId") Long projectId, @PathVariable("issueId") Long issueId){
+    public ResponseEntity<String> deleteIssue(@PathVariable("projectId") Long projectId, @PathVariable("issueId") Long issueId){
         Issue issue = issueRepository.findOne(issueId);
         if (issue == null) throw new IssueNotFoundException();
 
@@ -95,6 +96,6 @@ public class IssueController {
         issue.removeAllLabels();
         issueRepository.delete(issue);
 
-        return new JsonRequest(200, "Issue successfully deleted");
+        return ResponseEntity.ok("Issue successfully deleted");
     }
 }
