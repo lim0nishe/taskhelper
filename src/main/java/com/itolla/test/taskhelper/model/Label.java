@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 @Entity
@@ -18,12 +19,13 @@ public class Label {
     private String title;
 
     @JsonIgnoreProperties({"owner", "users", "issues", "labels"})
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "projectId")
     private Project project;
 
     @JsonIgnoreProperties({"description", "user", "project", "labels"})
-    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "labels")
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH},
+            mappedBy = "labels")
     private Set<Issue> issues;
 
     public Label(){}
@@ -91,6 +93,16 @@ public class Label {
         // сохранение целостности
         issue.removeLabel(this);
 
+    }
+
+    public void removeAllIssues(){
+        if (issues == null)
+            return;
+        for (Iterator<Issue> iterator = issues.iterator(); iterator.hasNext();){
+            Issue current = iterator.next();
+            iterator.remove();
+            current.removeLabel(this);
+        }
     }
 
 }

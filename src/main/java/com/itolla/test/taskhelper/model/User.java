@@ -27,7 +27,8 @@ public class User {
     private Set<Project> ownProjects;
 
     @JsonIgnoreProperties({"owner", "users", "issues", "labels"})
-    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "users")
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH},
+            mappedBy = "users")
     private Set<Project> projects;
 
     public User(){}

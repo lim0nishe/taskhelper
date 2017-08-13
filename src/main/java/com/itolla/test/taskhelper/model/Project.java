@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 @Entity
@@ -17,12 +18,12 @@ public class Project {
     private String title;
 
     @JsonIgnoreProperties({"password", "issues", "ownProjects", "projects"})
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "userId")
     private User owner;
 
     @JsonIgnoreProperties({"password", "issues", "ownProjects", "projects"})
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "userId")
     private Set<User> users;
 
@@ -103,9 +104,12 @@ public class Project {
     public void removeAllUsers(){
         if (users == null)
             return;
-        for (User user : users){
-            users.remove(user);
-            user.removeProject(this);
+
+        // preventing ConcurrentModificationException
+        for (Iterator<User> iterator = users.iterator(); iterator.hasNext();){
+            User current = iterator.next();
+            iterator.remove();
+            current.removeProject(this);
         }
     }
 
@@ -142,9 +146,10 @@ public class Project {
     public void removeAllIssues(){
         if (issues == null)
             return;
-        for (Issue issue : issues){
-            issues.remove(issue);
-            issue.setProject(null);
+        for (Iterator<Issue> iterator = issues.iterator(); iterator.hasNext();){
+            Issue current = iterator.next();
+            iterator.remove();
+            current.setProject(null);
         }
     }
     public Set<Label> getLabels(){
@@ -180,9 +185,10 @@ public class Project {
     public void removeAllLabels(){
         if (labels == null)
             return;
-        for (Label label : labels){
-            labels.remove(label);
-            label.setProject(null);
+        for (Iterator<Label> iterator = labels.iterator(); iterator.hasNext();){
+            Label current = iterator.next();
+            iterator.remove();
+            current.setProject(null);
         }
     }
 }

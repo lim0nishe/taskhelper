@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 @Entity
@@ -19,17 +20,17 @@ public class Issue {
     private String description;
 
     @JsonIgnoreProperties({"password", "issues", "ownProjects", "projects"})
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "userId")
     private User user;
 
     @JsonIgnoreProperties({"owner", "users", "issues", "labels"})
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "projectId")
     private Project project;
 
     @JsonIgnoreProperties({"project", "issues"})
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "labelId")
     private Set<Label> labels;
 
@@ -126,5 +127,15 @@ public class Issue {
 
         // соранение целостности
         label.removeIssue(this);
+    }
+
+    public void removeAllLabels(){
+        if (labels == null)
+            return;
+        for (Iterator<Label> iterator = labels.iterator(); iterator.hasNext();){
+            Label current = iterator.next();
+            iterator.remove();
+            current.removeIssue(this);
+        }
     }
 }
