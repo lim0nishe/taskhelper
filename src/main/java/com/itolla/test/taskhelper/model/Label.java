@@ -18,12 +18,12 @@ public class Label {
 
     private String title;
 
-    @JsonIgnoreProperties({"owner", "users", "issues", "labels"})
+
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "projectId")
     private Project project;
 
-    @JsonIgnoreProperties({"description", "user", "project", "labels"})
+
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH},
             mappedBy = "labels")
     private Set<Issue> issues;
@@ -48,7 +48,8 @@ public class Label {
     }
 
     public void setProject(Project project) {
-        // чтобы не зациклиться
+        this.project = project;
+        /*// чтобы не зациклиться
         if (this.project == null? project == null : this.project.equals(project))
             return;
         Project oldProject = this.project;
@@ -58,7 +59,7 @@ public class Label {
         if (oldProject != null)
             oldProject.removeLabel(this);
         if (project != null)
-            project.addLabel(this);
+            project.addLabel(this);*/
     }
 
     public Project getProject() {
@@ -69,7 +70,11 @@ public class Label {
         return issues;
     }
 
-    public void addIssue(Issue issue){
+    public void setIssues(Set<Issue> issues){
+        this.issues = issues;
+    }
+
+    /*public void addIssue(Issue issue){
 
         if (issues == null)
             issues = new HashSet<>();
@@ -103,7 +108,7 @@ public class Label {
             iterator.remove();
             current.removeLabel(this);
         }
-    }
+    }*/
 
 }
 

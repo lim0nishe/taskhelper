@@ -19,17 +19,17 @@ public class Issue {
     private String title;
     private String description;
 
-    @JsonIgnoreProperties({"password", "issues", "ownProjects", "projects"})
+
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "userId")
     private User user;
 
-    @JsonIgnoreProperties({"owner", "users", "issues", "labels"})
+
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "projectId")
     private Project project;
 
-    @JsonIgnoreProperties({"project", "issues"})
+
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "labelId")
     private Set<Label> labels;
@@ -61,12 +61,11 @@ public class Issue {
         return this.description;
     }
 
-     // Вылетала ошибка detached entity passed to persist,
-     // скорее всего возникала из-за нарушения целостности.
-     // Переделал сеттеры
-
     public void setUser(User user) {
-        // чтобы не зациклиться
+
+        this.user = user;
+
+        /*// чтобы не зациклиться
         if (this.user == null? user == null : this.user.equals(user))
             return;
         User oldUser = this.user;
@@ -76,7 +75,7 @@ public class Issue {
         if(oldUser != null)
             oldUser.removeIssue(this);
         if (user != null)
-            user.addIssue(this);
+            user.addIssue(this);*/
     }
 
     public User getUser() {
@@ -84,7 +83,10 @@ public class Issue {
     }
 
     public void setProject(Project project) {
-        // чтобы не зациклиться
+
+        this.project = project;
+
+        /*// чтобы не зациклиться
         if (this.project == null? project == null : this.project.equals(project))
             return;
         Project oldProject = this.project;
@@ -94,7 +96,7 @@ public class Issue {
         if (oldProject != null)
             oldProject.removeIssue(this);
         if (project != null)
-            project.addIssue(this);
+            project.addIssue(this);*/
     }
 
     public Project getProject() {
@@ -105,7 +107,11 @@ public class Issue {
         return labels;
     }
 
-    public void addLabel(Label label){
+    public void setLabels(Set<Label> labels){
+        this.labels = labels;
+    }
+
+    /*public void addLabel(Label label){
 
         if (labels == null)
             labels = new HashSet<>();
@@ -137,5 +143,5 @@ public class Issue {
             iterator.remove();
             current.removeIssue(this);
         }
-    }
+    }*/
 }

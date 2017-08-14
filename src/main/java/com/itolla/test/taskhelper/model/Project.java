@@ -17,21 +17,17 @@ public class Project {
     private Long projectId;
     private String title;
 
-    @JsonIgnoreProperties({"password", "issues", "ownProjects", "projects"})
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "userId")
     private User owner;
 
-    @JsonIgnoreProperties({"password", "issues", "ownProjects", "projects"})
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "userId")
     private Set<User> users;
 
-    @JsonIgnoreProperties({"description", "user", "project", "labels"})
     @OneToMany(mappedBy = "project")
     private Set<Issue> issues;
 
-    @JsonIgnoreProperties({"project", "issues"})
     @OneToMany(mappedBy = "project")
     private Set<Label> labels;
 
@@ -55,7 +51,8 @@ public class Project {
     }
 
     public void setOwner(User owner){
-        // чтобы не зациклиться
+        this.owner = owner;
+        /*// чтобы не зациклиться
         if (this.owner == null? owner == null : this.owner.equals(owner))
             return;
         User oldOwner = this.owner;
@@ -65,7 +62,7 @@ public class Project {
         if(oldOwner != null)
             oldOwner.removeOwnProject(this);
         if (owner != null)
-            owner.addOwnProject(this);
+            owner.addOwnProject(this);*/
     }
 
     public User getOwner() {
@@ -76,7 +73,7 @@ public class Project {
         return users;
     }
 
-    public void addUser(User user){
+    /*public void addUser(User user){
 
         if (users == null)
             users = new HashSet<>();
@@ -111,13 +108,17 @@ public class Project {
             iterator.remove();
             current.removeProject(this);
         }
+    }*/
+
+    public void setUsers(Set<User> users){
+        this.users = users;
     }
 
     public Set<Issue> getIssues(){
         return issues;
     }
 
-    public void addIssue(Issue issue){
+    /*public void addIssue(Issue issue){
 
         if (issues == null)
             issues = new HashSet<>();
@@ -151,12 +152,17 @@ public class Project {
             iterator.remove();
             current.setProject(null);
         }
+    }*/
+
+    public void setIssues(Set<Issue> issues){
+        this.issues = issues;
     }
+
     public Set<Label> getLabels(){
         return this.labels;
     }
 
-    public void addLabel(Label label){
+    /*public void addLabel(Label label){
 
         if (labels == null)
             labels = new HashSet<>();
@@ -190,5 +196,9 @@ public class Project {
             iterator.remove();
             current.setProject(null);
         }
+    }*/
+
+    public void setLabels(Set<Label> labels) {
+        this.labels = labels;
     }
 }

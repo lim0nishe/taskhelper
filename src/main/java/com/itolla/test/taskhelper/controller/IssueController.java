@@ -1,23 +1,17 @@
 package com.itolla.test.taskhelper.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itolla.test.taskhelper.model.User;
+import com.itolla.test.taskhelper.dto.IssueDto;
 import com.itolla.test.taskhelper.repository.IssueRepository;
-import com.itolla.test.taskhelper.repository.LabelRepository;
-import com.itolla.test.taskhelper.repository.UserRepository;
+import com.itolla.test.taskhelper.repository.ProjectRepository;
 import com.itolla.test.taskhelper.model.Issue;
 import com.itolla.test.taskhelper.util.IssueNotFoundException;
-import com.itolla.test.taskhelper.util.UserNotFoundException;
+import com.itolla.test.taskhelper.util.JsonResponse;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/issues")
@@ -27,75 +21,50 @@ public class IssueController {
     private IssueRepository issueRepository;
 
     @Autowired
-    private LabelRepository labelRepository;
+    private ProjectRepository projectRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private ModelMapper modelMapper;
 
     @RequestMapping(method = RequestMethod.GET)
-    public List<Issue> getIssues(){
-        return issueRepository.findAll();
+    public List<IssueDto> getIssues(){
+        List<Issue> issues = issueRepository.findAll();
+
+        // convert to DTO
+        return issues.stream().map(issue -> modelMapper.map(issue, IssueDto.class)).collect(Collectors.toList());
+
     }
 
     @RequestMapping(value = "/{projectId}/{issueId}", method = RequestMethod.GET)
-    public Issue getIssue(@PathVariable("projectId") Long projectId, @PathVariable("issueId") Long issueId){
-        return issueRepository.findOne(issueId);
+    public IssueDto getIssue(@PathVariable("projectId") Long projectId, @PathVariable("issueId") Long issueId){
+        return modelMapper.map(issueRepository.findOne(issueId), IssueDto.class);
     }
 
     @RequestMapping(value = "/{projectId}/{issueId}", method = RequestMethod.PUT)
-    public ResponseEntity<String> updateIssue(@PathVariable("projectId") Long projectId, @PathVariable("issueId") Long issueId,
-                                      @RequestBody String jsonString){
+    public IssueDto updateIssue(@PathVariable("projectId") Long projectId, @PathVariable("issueId") Long issueId,
+                                      @RequestBody IssueDto issueDto){
         Issue issue = issueRepository.findOne(issueId);
         if (issue == null) throw new IssueNotFoundException();
 
-        try {
-            // deserialize json into map
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.configure(DeserializationFeature.USE_LONG_FOR_INTS, true);
-            Map<String, Object> jsonMap = objectMapper.readValue(jsonString,
-                    new TypeReference<Map<String, Object>>() {});
+        Issue updatedIssue = modelMapper.map(issueDto, Issue.class);
 
-            if (jsonMap.containsKey("title"))
-                issue.setTitle(jsonMap.get("title").toString());
+        // set id to make save method merge old issue
+        updatedIssue.setId(issueId);
+        updatedIssue.setProject(projectRepository.findOne(projectId));
 
-            if (jsonMap.containsKey("description"))
-                issue.setDescription(jsonMap.get("description").toString());
+        issueRepository.save(updatedIssue);
+        return modelMapper.map(updatedIssue, IssueDto.class);
 
-            if (jsonMap.containsKey("user")){
-                User user = userRepository.findOne((Long)jsonMap.get("user"));
-                if (user == null) throw new UserNotFoundException();
-                issue.setUser(user);
-            }
-
-            List<Long> labelIdList = (List<Long>)jsonMap.get("labels");
-
-            // avoid NullPointer
-            if (labelIdList != null){
-                issue.removeAllLabels();
-                for (Long labelId : labelIdList){
-                    issue.addLabel(labelRepository.findOne(labelId));
-                }
-            }
-
-            issueRepository.save(issue);
-            return ResponseEntity.ok("Issue successfully updated");
-        }
-        catch (IOException e){
-            e.printStackTrace();
-            return new ResponseEntity<>("Something wrong with json map", HttpStatus.BAD_REQUEST);
-        }
     }
 
     @RequestMapping(value = "/{projectId}/{issueId}", method = RequestMethod.DELETE)
-    public ResponseEntity<String> deleteIssue(@PathVariable("projectId") Long projectId, @PathVariable("issueId") Long issueId){
+    public JsonResponse deleteIssue(@PathVariable("projectId") Long projectId, @PathVariable("issueId") Long issueId){
         Issue issue = issueRepository.findOne(issueId);
         if (issue == null) throw new IssueNotFoundException();
 
-        issue.setUser(null);
-        issue.setProject(null);
-        issue.removeAllLabels();
         issueRepository.delete(issue);
 
-        return ResponseEntity.ok("Issue successfully deleted");
+        return new JsonResponse("200", "Issue successfully deleted");
     }
+
 }

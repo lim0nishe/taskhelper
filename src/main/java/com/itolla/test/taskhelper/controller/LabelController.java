@@ -1,20 +1,17 @@
 package com.itolla.test.taskhelper.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itolla.test.taskhelper.repository.IssueRepository;
+import com.itolla.test.taskhelper.dto.LabelDto;
 import com.itolla.test.taskhelper.repository.LabelRepository;
 import com.itolla.test.taskhelper.model.Label;
+import com.itolla.test.taskhelper.repository.ProjectRepository;
+import com.itolla.test.taskhelper.util.JsonResponse;
 import com.itolla.test.taskhelper.util.LabelNotFoundException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/labels")
@@ -24,60 +21,43 @@ public class LabelController {
     private LabelRepository labelRepository;
 
     @Autowired
-    private IssueRepository issueRepository;
+    private ProjectRepository projectRepository;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @RequestMapping(method = RequestMethod.GET)
-    public List<Label> getLabels(){
-        return labelRepository.findAll();
+    public List<LabelDto> getLabels(){
+        List<Label> labels = labelRepository.findAll();
+        return labels.stream().map(label -> modelMapper.map(label, LabelDto.class)).collect(Collectors.toList());
     }
 
     @RequestMapping(value = "/{projectId}/{labelId}", method = RequestMethod.GET)
-    public Label getLabel(@PathVariable("labelId") Long labelId, @PathVariable("projectId") Long projectId){
-        return labelRepository.findOne(labelId);
+    public LabelDto getLabel(@PathVariable("labelId") Long labelId, @PathVariable("projectId") Long projectId){
+        return modelMapper.map(labelRepository.findOne(labelId), LabelDto.class);
     }
 
     @RequestMapping(value = "/{projectId}/{labelId}", method = RequestMethod.PUT)
-    public ResponseEntity<String> updateLabel(@PathVariable("labelId") Long labelId, @PathVariable("projectId") Long projectId,
-                                      @RequestBody String jsonString){
+    public LabelDto updateLabel(@PathVariable("labelId") Long labelId, @PathVariable("projectId") Long projectId,
+                                      @RequestBody LabelDto labelDto){
         Label label = labelRepository.findOne(labelId);
         if (label == null) throw new LabelNotFoundException();
-        try {
-            // deserialize json into map
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.configure(DeserializationFeature.USE_LONG_FOR_INTS, true);
-            Map<String, Object> jsonMap = objectMapper.readValue(jsonString,
-                    new TypeReference<Map<String, Object>>() {});
 
-            if (jsonMap.containsKey("title"))
-                label.setTitle(jsonMap.get("title").toString());
+        Label updatedLabel = modelMapper.map(labelDto, Label.class);
+        updatedLabel.setId(labelId);
+        updatedLabel.setProject(projectRepository.findOne(projectId));
 
-            List<Long> issueIdList = (List<Long>)jsonMap.get("issues");
+        labelRepository.save(updatedLabel);
+        return modelMapper.map(updatedLabel, LabelDto.class);
 
-            // avoid NullPointer
-            if (issueIdList != null){
-                label.removeAllIssues();
-                for (Long issueId : issueIdList){
-                    label.addIssue(issueRepository.findOne(issueId));
-                }
-            }
-
-            labelRepository.save(label);
-            return ResponseEntity.ok("Label successfully updated");
-        }
-        catch (IOException e){
-            e.printStackTrace();
-            return new ResponseEntity<>("Something wrong with json map", HttpStatus.BAD_REQUEST);
-        }
     }
 
     @RequestMapping(value = "/{projectId}/{labelId}", method = RequestMethod.DELETE)
-    public ResponseEntity<String> deleteLabel(@PathVariable("projectId") Long projectId, @PathVariable("labelId") Long labelId){
+    public JsonResponse deleteLabel(@PathVariable("projectId") Long projectId, @PathVariable("labelId") Long labelId){
         Label label = labelRepository.findOne(labelId);
         if (label == null) throw new LabelNotFoundException();
 
-        label.setProject(null);
-        label.removeAllIssues();
         labelRepository.delete(label);
-        return ResponseEntity.ok("Label successfully deleted");
+        return new JsonResponse("200", "Label successfully deleted");
     }
 }

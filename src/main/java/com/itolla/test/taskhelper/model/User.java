@@ -21,15 +21,15 @@ public class User implements UserDetails {
     private String username;
     private String password;
 
-    @JsonIgnoreProperties({"description", "user", "project", "labels"})
+
     @OneToMany(mappedBy = "user")
     private Set<Issue> issues;
 
-    @JsonIgnoreProperties({"owner", "users", "issues", "labels"})
+
     @OneToMany(mappedBy = "owner")
     private Set<Project> ownProjects;
 
-    @JsonIgnoreProperties({"owner", "users", "issues", "labels"})
+
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH},
             mappedBy = "users")
     private Set<Project> projects;
@@ -91,7 +91,7 @@ public class User implements UserDetails {
         return projects;
     }
 
-    public void addProject(Project project){
+    /*public void addProject(Project project){
 
         if (projects == null)
             projects = new HashSet<>();
@@ -115,9 +115,13 @@ public class User implements UserDetails {
 
         // сохранение целостности
         project.removeUser(this);
+    }*/
+
+    public void setProjects(Set<Project> projects) {
+        this.projects = projects;
     }
 
-    public void addIssue(Issue issue){
+    /*public void addIssue(Issue issue){
 
         if (issues == null)
             issues = new HashSet<>();
@@ -141,13 +145,17 @@ public class User implements UserDetails {
 
         // сохранение целостности
         issue.setUser(null);
+    }*/
+
+    public void setIssues(Set<Issue> issues) {
+        this.issues = issues;
     }
 
     public Set<Issue> getIssues() {
         return issues;
     }
 
-    public void addOwnProject(Project ownProject) {
+    /*public void addOwnProject(Project ownProject) {
 
         if (ownProjects == null)
             ownProjects = new HashSet<>();
@@ -171,6 +179,10 @@ public class User implements UserDetails {
 
         // Сохранение целостности
         ownProject.setOwner(null);
+    }*/
+
+    public void setOwnProjects(Set<Project> ownProjects) {
+        this.ownProjects = ownProjects;
     }
 
     public Set<Project> getOwnProjects() {
